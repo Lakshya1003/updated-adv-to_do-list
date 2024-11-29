@@ -1,0 +1,279 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager Quadrants</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 20px;
+    }
+    h2, h3 {
+        color: #333;
+        margin: 10px 0;
+    }
+    .matrix-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        width: 90%;
+        max-width: 600px;
+    }
+    @media (min-width: 600px) {
+        .matrix-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    .quadrant {
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        background-color: #fff;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .input-section {
+        margin-bottom: 10px;
+    }
+    input {
+        padding: 8px;
+        font-size: 16px;
+        width: 100%;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    button {
+        padding: 8px 12px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        width: 100%;
+    }
+    button:hover {
+        opacity: 0.9;
+    }
+    .list-section {
+        margin-top: 10px;
+    }
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    li {
+        background-color: #f1f1f1;
+        padding: 10px;
+        margin-bottom: 8px;
+        border-radius: 4px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .complete {
+        background-color: #28a745;
+        margin-left: 5px;
+    }
+    .delete {
+        background-color: #dc3545;
+        margin-left: 5px;
+    }
+</style>
+</head>
+<body style="background: linear-gradient(to right, #4e54c8, #8f94fb);">
+    <center>
+        <h1>Your Work, Your Priority</h1>
+        <div class="matrix-container">
+            <!-- Quadrants 1 to 4 -->
+            <div class="quadrant" id="quadrant1">
+                <h2>Important + Urgent</h2>
+                <div class="input-section">
+                    <input type="text" id="taskInput1" placeholder="Enter a new task">
+                    <button onclick="addTask('taskInput1', 'todoList1', 'completedList1')">Add Task</button>
+                </div>
+                <div class="list-section">
+                    <h3>To-Do</h3>
+                    <ul id="todoList1"></ul>
+                </div>
+                <div class="list-section">
+                    <h3>Completed</h3>
+                    <ul id="completedList1"></ul>
+                </div>
+            </div>
+            
+            <!-- Repeat the same structure for other quadrants -->
+            <div class="quadrant" id="quadrant2">
+                <h2>Important + Not Urgent</h2>
+                <div class="input-section">
+                    <input type="text" id="taskInput2" placeholder="Enter a new task">
+                    <button onclick="addTask('taskInput2', 'todoList2', 'completedList2')">Add Task</button>
+                </div>
+                <div class="list-section">
+                    <h3>To-Do</h3>
+                    <ul id="todoList2"></ul>
+                </div>
+                <div class="list-section">
+                    <h3>Completed</h3>
+                    <ul id="completedList2"></ul>
+                </div>
+            </div>
+            
+            <div class="quadrant" id="quadrant3">
+                <h2>Not Important + Urgent</h2>
+                <div class="input-section">
+                    <input type="text" id="taskInput3" placeholder="Enter a new task">
+                    <button onclick="addTask('taskInput3', 'todoList3', 'completedList3')">Add Task</button>
+                </div>
+                <div class="list-section">
+                    <h3>To-Do</h3>
+                    <ul id="todoList3"></ul>
+                </div>
+                <div class="list-section">
+                    <h3>Completed</h3>
+                    <ul id="completedList3"></ul>
+                </div>
+            </div>
+            
+            <div class="quadrant" id="quadrant4">
+                <h2>Not Important + Not Urgent</h2>
+                <div class="input-section">
+                    <input type="text" id="taskInput4" placeholder="Enter a new task">
+                    <button onclick="addTask('taskInput4', 'todoList4', 'completedList4')">Add Task</button>
+                </div>
+                <div class="list-section">
+                    <h3>To-Do</h3>
+                    <ul id="todoList4"></ul>
+                </div>
+                <div class="list-section">
+                    <h3>Completed</h3>
+                    <ul id="completedList4"></ul>
+                </div>
+            </div>
+        </div>
+    </center>
+<script>
+// Initialize lists from localStorage on page load
+document.addEventListener("DOMContentLoaded", loadTasks);
+
+function addTask(taskInputId, todoListId, completedListId) {
+    const taskInput = document.getElementById(taskInputId);
+    const todoList = document.getElementById(todoListId);
+
+    if (taskInput.value.trim() !== '') {
+        const taskItem = document.createElement('li');
+        taskItem.textContent = taskInput.value;
+
+        // Complete Button
+        const completeButton = document.createElement('button');
+        completeButton.textContent = 'Complete';
+        completeButton.classList.add('complete');
+        completeButton.onclick = () => completeTask(taskItem, completedListId, todoListId);
+
+        // Delete Button
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.classList.add('delete');
+        deleteButton.onclick = () => deleteTask(taskItem, todoListId);
+
+        taskItem.appendChild(completeButton);
+        taskItem.appendChild(deleteButton);
+        todoList.appendChild(taskItem);
+
+        saveTasks(todoListId);
+        taskInput.value = '';
+    }
+}
+
+function completeTask(taskItem, completedListId, todoListId) {
+    const completedList = document.getElementById(completedListId);
+    taskItem.querySelector('.complete').remove();
+
+    // Restore button
+    const restoreButton = document.createElement('button');
+    restoreButton.textContent = 'Restore';
+    restoreButton.classList.add('complete');
+    restoreButton.onclick = () => restoreTask(taskItem, todoListId);
+
+    taskItem.appendChild(restoreButton);
+    completedList.appendChild(taskItem);
+
+    saveTasks(todoListId);
+    saveTasks(completedListId);
+}
+
+function restoreTask(taskItem, todoListId) {
+    const todoList = document.getElementById(todoListId);
+    taskItem.querySelector('.complete').remove();
+    addTask(todoListId, taskItem);
+}
+
+function deleteTask(taskItem, listId) {
+    taskItem.remove();
+    saveTasks(listId);
+}
+
+// Save tasks to localStorage
+function saveTasks(listId) {
+    const list = document.getElementById(listId);
+    const tasks = Array.from(list.children).map(task => task.textContent.trim());
+    localStorage.setItem(listId, JSON.stringify(tasks));
+}
+
+// Load tasks from localStorage
+function loadTasks() {
+    for (let i = 1; i <= 4; i++) {
+        const todoList = document.getElementById(`todoList${i}`);
+        const completedList = document.getElementById(`completedList${i}`);
+        const todoTasks = JSON.parse(localStorage.getItem(`todoList${i}`)) || [];
+        const completedTasks = JSON.parse(localStorage.getItem(`completedList${i}`)) || [];
+
+        todoTasks.forEach(taskText => {
+            const taskItem = createTaskItem(taskText, `todoList${i}`, `completedList${i}`);
+            todoList.appendChild(taskItem);
+        });
+
+        completedTasks.forEach(taskText => {
+            const taskItem = createTaskItem(taskText, `completedList${i}`, `todoList${i}`, true);
+            completedList.appendChild(taskItem);
+        });
+    }
+}
+
+// Create task item with buttons
+function createTaskItem(taskText, todoListId, completedListId, isCompleted = false) {
+    const taskItem = document.createElement('li');
+    taskItem.textContent = taskText;
+
+    if (isCompleted) {
+        const restoreButton = document.createElement('button');
+        restoreButton.textContent = 'Restore';
+        restoreButton.classList.add('complete');
+        restoreButton.onclick = () => restoreTask(taskItem, todoListId);
+        taskItem.appendChild(restoreButton);
+    } else {
+        const completeButton = document.createElement('button');
+        completeButton.textContent = 'Complete';
+        completeButton.classList.add('complete');
+        completeButton.onclick = () => completeTask(taskItem, completedListId, todoListId);
+        taskItem.appendChild(completeButton);
+    }
+
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Delete';
+    deleteButton.classList.add('delete');
+    deleteButton.onclick = () => deleteTask(taskItem, todoListId);
+
+    taskItem.appendChild(deleteButton);
+    return taskItem;
+}
+</script>
+</body>
+</html>

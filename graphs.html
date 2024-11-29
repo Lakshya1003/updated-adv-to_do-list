@@ -1,0 +1,154 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Progress Graph</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f2f5;
+    }
+
+    .container {
+        text-align: center;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        width: 80%;
+        max-width: 500px;
+    }
+
+    .input-section {
+        margin: 20px 0;
+    }
+
+    #progressInput {
+        width: 50px;
+        padding: 5px;
+        font-size: 16px;
+        margin-right: 15px;
+    }
+
+    button {
+        font-size: 16px;
+        padding: 8px 16px;
+        margin: 5px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        background-color: #9A64C2;
+        color: #fff;
+        transition: transform 0.2s, box-shadow 0.2s;
+        width: 90%;
+        max-width: 400px;
+    }
+
+    button:hover {
+        box-shadow: 0px 0px 60px rgba(119, 247, 239, 1.0);
+        transform: scale(1.1);
+    }
+
+    #chartContainer {
+        margin-top: 20px;
+    }
+</style>
+</head>
+<body style="background: linear-gradient(to right, #B021F0, #9C9BF7); height: 100vh; margin: 0;">
+    <div class="container">
+        <h1>Daily Progress Tracker</h1>
+        <div class="input-section">
+            <label for="progressInput">Enter hours of progress:</label>
+            <input type="number" id="progressInput" min="0" max="24" placeholder="e.g., 5">
+            <button onclick="addProgress()">Add Progress</button>
+        </div>
+        <div id="chartContainer">
+            <canvas id="progressChart" width="400" height="300"></canvas>
+        </div>
+    </div>
+
+    <!-- Chart.js Library from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Inline JavaScript -->
+    <script>
+        const ctx = document.getElementById('progressChart').getContext('2d');
+
+        // Initial data for a 7-day week
+        const labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        let progressData = [0, 0, 0, 0, 0, 0, 0]; // Default progress values
+
+        // Load saved progress data from local storage
+        loadProgressData();
+
+        // Chart configuration
+        const progressChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Hours of Progress',
+                    data: progressData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 24,
+                        title: {
+                            display: true,
+                            text: 'Hours'
+                        }
+                    }
+                },
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                }
+            }
+        });
+
+        // Function to add progress data and save to local storage
+        function addProgress() {
+            const input = document.getElementById("progressInput");
+            const progressHours = parseInt(input.value);
+
+            if (!isNaN(progressHours) && progressHours >= 0 && progressHours <= 24) {
+                const currentDay = new Date().getDay(); // Get today's index (0-6)
+
+                progressData[currentDay] = progressHours; // Update progress for the current day
+                progressChart.update(); // Update the chart display
+                saveProgressData(); // Save progress data to local storage
+                input.value = ''; // Clear the input field
+            } else {
+                alert("Please enter a valid number between 0 and 24.");
+            }
+        }
+
+        // Function to save progress data to local storage
+        function saveProgressData() {
+            localStorage.setItem("progressData", JSON.stringify(progressData));
+        }
+
+        // Function to load progress data from local storage
+        function loadProgressData() {
+            const storedData = localStorage.getItem("progressData");
+            if (storedData) {
+                progressData = JSON.parse(storedData);
+            }
+        }
+    </script>
+</body>
+</html>
